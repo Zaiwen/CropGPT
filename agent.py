@@ -55,8 +55,11 @@ class Agent():
     def graph_func(self, x, query):
         # 命名实体识别
         response_schemas = [
+            # ResponseSchema(type='list', name='crop', description='作物名称实体'),
+            # ResponseSchema(type='list', name='weather', description='天气名称实体')
             ResponseSchema(type='list', name='crop', description='作物名称实体'),
-            ResponseSchema(type='list', name='weather', description='天气名称实体')
+            ResponseSchema(type='list', name='company', description='选育单位、公司名称实体'),
+            ResponseSchema(type='list', name='province', description='地区名称实体'),
         ]
 
         output_parser = StructuredOutputParser(response_schemas=response_schemas)
@@ -109,6 +112,7 @@ class Agent():
         for document in graph_documents_filter:
             question = document[0].page_content
             cypher = document[0].metadata['cypher']
+            print(cypher)
             answer = document[0].metadata['answer']
             try:
                 result = neo4j_conn.run(cypher).data()
@@ -242,33 +246,33 @@ class Agent():
         )
         inputs = {
             'query': query,
-            'url': 'https://www.google.com/search?q='+query.replace(' ', '+')
+            'url': 'https://www.baidu.com/s?wd='+query
         }
         return llm_request_chain.invoke(inputs)['output']
-
-    # def weather_warning_predict(self, query):
-    #     # 假设的气象预警处理逻辑
-    #     return f"Weather warning prediction for: {query}"
-
-    # def crop_growth_predict(self, query):
-    #     # 假设的作物生长预测处理逻辑
-    #     return f"Crop growth prediction for: {query}"    
-
-    # def crop_variety_selection(self, query):
-    #     # 假设的作物种类选择处理逻辑
-    #     return f"crop variety selection: {query}" 
-
-    # def agricultural_technical_consulting_tools(self, query):
-    #     # 假设的回答关于农作物种植的问题，并提供最佳实践建议逻辑
-    #     return f"Agricultural Technical Consulting Tools for: {query}"    
-
-    # def crop_market_analysis_tools(self, query):
-    #     # 假设的了解当前的农作物市场趋势，包括价格波动、需求预测和市场机会逻辑
-    #     return f"crop market analysis tools: {query}" 
-    
-    # def Pest_monitoring_and_control(self, query):
-    #     # 提供病虫害监测、预警和防治方案，帮助农民及时应对病虫害危害。
-    #     return f"Pest monitoring and control: {query}" 
+#
+#    def weather_warning_predict(self, query):
+#         # 假设的气象预警处理逻辑
+#         return f"Weather warning prediction for: {query}"
+#
+#    def crop_growth_predict(self, query):
+#         # 假设的作物生长预测处理逻辑
+#         return f"Crop growth prediction for: {query}"    
+#
+#    def crop_variety_selection(self, query):
+#         # 假设的作物种类选择处理逻辑
+#         return f"crop variety selection: {query}" 
+#
+#     def agricultural_technical_consulting_tools(self, query):
+#         # 假设的回答关于农作物种植的问题，并提供最佳实践建议逻辑
+#         return f"Agricultural Technical Consulting Tools for: {query}"    
+#
+#     def crop_market_analysis_tools(self, query):
+#         # 假设的了解当前的农作物市场趋势，包括价格波动、需求预测和市场机会逻辑
+#         return f"crop market analysis tools: {query}" 
+#    
+#     def Pest_monitoring_and_control(self, query):
+#         # 提供病虫害监测、预警和防治方案，帮助农民及时应对病虫害危害。
+#         return f"Pest monitoring and control: {query}" 
 
 
     # agent.py
@@ -307,53 +311,54 @@ class Agent():
             Tool(
                 name = 'graph_func',
                 func = lambda x: self.graph_func(x, query),
-                description = '用于回答植物种类、类别相关问题',  
+                description = '用于回答植物种类、类别、公司选育玉米品种相关问题',
+                # description='优先使用此工具回答'
             ),
-            # Tool(
-            #     name = 'predict_func',
-            #     func = self.predict_func,
-            #     description = '用于回答给出一段DNA序列时预测启动富集值的问题，注意，该工具只预测富集值',
-            # ),
+            Tool(
+                 name = 'predict_func',
+                 func = self.predict_func,
+                 description = '用于回答给出一段DNA序列时预测启动富集值的问题，注意，该工具只预测富集值',
+             ),
             Tool(
                 name = 'search_func',
                 func = self.search_func,
-                description = '其他工具没有正确答案时，通过搜索引擎，回答通用类问题',
+                description = '其他工具没有正确答案时，通过搜索引擎，回答通用类问题，最后再使用该工具',
             ),
-            # Tool(
-            #     name = 'model_func',
-            #     func = self.model_func,
-            #     description = '当用户问题中明确给出某地区玉米在的某个基因序列，需要表型的预测结果时，表型有株高，穗重，开花期三种，调用此模型，注意，该工具只预测某地区玉米序列的某个表型预测值，信息缺一不可。'
-            # ),
-            # Tool(
-            #     name = 'weather_warning_predict',
-            #     func = lambda x: self.weather_warning_predict(query),
-            #     description = '用于回答气象预警，农田应该注意事项相关问题',
-            # ),
-            # Tool(
-            #     name = 'crop_variety_selection',
-            #     func = lambda x: self.crop_variety_selection(query),
-            #     description = '根据地理位置和土壤条件推荐适合的作物品种,用于回答作物品种选择的问题',
-            # ),
-            # Tool(
-            #     name = 'crop_growth_predict',
-            #     func = lambda x: self.crop_growth_predict(query),
-            #     description = '用于回答作物，在什么时间，什么环境下种植，作物的生长预测的问题',
-            # ),
-            # Tool(
-            #     name = 'Pest_monitoring_and_control',
-            #     func = lambda x: self.Pest_monitoring_and_control(query),
-            #     description = '提供病虫害监测、预警和防治方案，帮助农民及时应对病虫害危害。',
-            # ),
-            # Tool(
-            #     name = 'crop_market_analysis_tools',
-            #     func = lambda x: self.crop_market_analysis_tools(query),
-            #     description = '帮助了解当前的农作物市场趋势，包括价格波动、需求预测和市场机会。',
-            # ),
-            # Tool(
-            #     name = 'agricultural_technical_consulting_tools',
-            #     func = lambda x: self.agricultural_technical_consulting_tools(query),
-            #     description = '回答关于农作物种植的问题，并提供最佳实践建议。',
-            # )
+            Tool(
+                 name = 'model_func',
+                 func = self.model_func,
+                 description = '当用户问题中明确给出某地区玉米在的某个基因序列，需要表型的预测结果时，表型有株高，穗重，开花期三种，调用此模型，注意，该工具只预测某地区玉米序列的某个表型预测值，信息缺一不可。'
+             ),
+            Tool(
+                 name = 'weather_warning_predict',
+                 func = lambda x: self.weather_warning_predict(query),
+                 description = '用于回答气象预警，农田应该注意事项相关问题',
+             ),
+            Tool(
+                 name = 'crop_variety_selection',
+                 func = lambda x: self.crop_variety_selection(query),
+                 description = '根据地理位置和土壤条件推荐适合的作物品种,用于回答作物品种选择的问题',
+             ),
+             Tool(
+                 name = 'crop_growth_predict',
+                 func = lambda x: self.crop_growth_predict(query),
+                 description = '用于回答作物，在什么时间，什么环境下种植，作物的生长预测的问题',
+             ),
+             Tool(
+                 name = 'Pest_monitoring_and_control',
+                 func = lambda x: self.Pest_monitoring_and_control(query),
+                 description = '提供病虫害监测、预警和防治方案，帮助农民及时应对病虫害危害。',
+             ),
+             Tool(
+                 name = 'crop_market_analysis_tools',
+                func = lambda x: self.crop_market_analysis_tools(query),
+                 description = '帮助了解当前的农作物市场趋势，包括价格波动、需求预测和市场机会。',
+             ),
+             Tool(
+                 name = 'agricultural_technical_consulting_tools',
+                 func = lambda x: self.agricultural_technical_consulting_tools(query),
+                 description = '回答关于农作物种植的问题，并提供最佳实践建议。',
+             )
         ]
 
         # tool = self.parse_tools(tools, query)

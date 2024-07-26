@@ -3,6 +3,7 @@ from langchain_openai import ChatOpenAI
 from langchain_community.chat_models import ChatBaichuan
 from langchain_community.embeddings import BaichuanTextEmbeddings
 from langchain_community.chat_models import ChatZhipuAI
+from langchain_community.chat_models import ChatTongyi
 from langchain_core.messages import AIMessage, HumanMessage, SystemMessage
 from py2neo import Graph
 from config import *
@@ -38,6 +39,10 @@ def get_llm_model():
             model = os.getenv('ZHIPUAI_LLM_MODEL'),
             temperture = os.getenv('TEMPERTURE'),
         )
+#        'qwen':ChatTongyi(
+#            model = os.getenv('QWEN_LLM_MODEL'),
+#            temperture = os.getenv('TEMPERTURE'),
+#        )
     }
     return model_map.get(os.getenv('LLM_MODEL'))
 

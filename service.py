@@ -9,7 +9,7 @@ class Service():
     def __init__(self):
         self.agent = Agent()
 
-    def get_summary_message(slef, message, history):
+    def get_summary_message(self, message, history):
         llm = get_llm_model()
         prompt = Prompt.from_template(SUMMARY_PROMPT_TPL)
         llm_chain = LLMChain(llm=llm, prompt=prompt, verbose=os.getenv('VERBOSE'))

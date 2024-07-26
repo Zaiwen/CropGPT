@@ -58,6 +58,8 @@
 
 
 
+# 从特定目录读取文本文件（包括 CSV、PDF 和 TXT 文件），
+# 将其分割成小块，然后将这些小块文本向量化并存储在一个持久化数据库中
 
 from utils import *
 
@@ -77,7 +79,9 @@ def doc2vec():
     # 读取并分割文件
     dir_path = os.path.join(os.path.dirname(__file__), './data/inputs/') #目录的路径
     documents = []
+
     for file_path in glob(dir_path + '*.*'):
+
         loader = None
         if '.csv' in file_path:
             loader = CSVLoader(file_path,encoding='utf-8')
@@ -87,7 +91,8 @@ def doc2vec():
             loader = TextLoader(file_path,encoding='utf-8')
         if loader:
             documents += loader.load_and_split(text_splitter)
-    print(documents)
+        print(2)
+    # print(documents)
 
     if documents:
         vdb = Chroma(
@@ -99,9 +104,9 @@ def doc2vec():
             texts = [doc.page_content for doc in documents[i:i+chunk_size]]
             metadatas = [doc.metadata for doc in documents[i:i+chunk_size]]
             vdb.add_texts(texts, metadatas)
-            time.sleep(6)
+            # time.sleep(6)
         vdb.persist()
-
+        print(1)
 
 if __name__ == '__main__':
     doc2vec()
