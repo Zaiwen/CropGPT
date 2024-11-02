@@ -7,11 +7,11 @@ from langchain_community.chat_models import ChatTongyi
 from langchain_core.messages import AIMessage, HumanMessage, SystemMessage
 from py2neo import Graph
 from config import *
-
+from langchain.embeddings import HuggingFaceBgeEmbeddings
+from langchain_community.embeddings import XinferenceEmbeddings
 import os
 from dotenv import load_dotenv
 load_dotenv()
-
 
 # 向量化模型
 def get_embeddings_model():
@@ -20,6 +20,12 @@ def get_embeddings_model():
             model = os.getenv('OPENAI_EMBEDDINGS_MODEL')
         ),
         'baichuanai': BaichuanTextEmbeddings(),
+        # 'bge-large': HuggingFaceBgeEmbeddings(
+        #     model_name="BAAI/bge-large-zh",
+        #     model_kwargs={'device': 'cpu'},
+        #     encode_kwargs={'normalize_embeddings': True}
+        # )
+        'Xinference':XinferenceEmbeddings(server_url="http://12.12.12.101:9997", model_uid="custom-bge-m3")
     }
     return model_map.get(os.getenv('EMBEDDINGS_MODEL'))
 

@@ -25,25 +25,28 @@ def doc2vec():
         chunk_overlap = 80 #重叠部分
     )
     # 读取并分割文件
-    dir_path = os.path.join(os.path.dirname(__file__), './data/inputs/') #目录的路径
+    dir_path = os.path.join(os.path.dirname(__file__), './data/input/') #目录的路径
     documents = []
     for file_path in glob(dir_path + '*.*'):
         loader = None
+        print(file_path)
         if '.csv' in file_path:
             loader = CSVLoader(file_path,encoding='utf-8')
         if '.pdf' in file_path:
+            print(file_path)
             loader = PyMuPDFLoader(file_path)
         if '.txt' in file_path:
             loader = TextLoader(file_path,encoding='utf-8')
         if loader:
             documents += loader.load_and_split(text_splitter)
-    print(documents)
+
+    print(len(documents))
 
     if documents:
         print("1111")
         vdb = Chroma(
             embedding_function = model,
-            persist_directory = os.path.join(os.path.dirname(__file__), './data/db1')
+            persist_directory = os.path.join(os.path.dirname(__file__), './data/db4')
         )
         chunk_size = 10
         for i in range(0, len(documents), chunk_size):

@@ -68,7 +68,6 @@ from glob import glob #遍历文件夹下的所有文件
 from langchain.vectorstores.chroma import Chroma
 from langchain_community.document_loaders import CSVLoader, PyMuPDFLoader, TextLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
-import time
 
 def doc2vec():
     # 定义文本分割器
@@ -77,7 +76,7 @@ def doc2vec():
         chunk_overlap = 80 #重叠部分
     )
     # 读取并分割文件
-    dir_path = os.path.join(os.path.dirname(__file__), './data/inputs/') #目录的路径
+    dir_path = os.path.join(os.path.dirname(__file__), './data/input/') #目录的路径
     documents = []
 
     for file_path in glob(dir_path + '*.*'):
@@ -91,20 +90,18 @@ def doc2vec():
             loader = TextLoader(file_path,encoding='utf-8')
         if loader:
             documents += loader.load_and_split(text_splitter)
-        print(2)
-    # print(documents)
 
     if documents:
         vdb = Chroma(
             embedding_function = get_embeddings_model(),
-            persist_directory = os.path.join(os.path.dirname(__file__), './data/db/')
+            persist_directory = os.path.join(os.path.dirname(__file__), './data/db2')
         )
         chunk_size = 10
         for i in range(0, len(documents), chunk_size):
             texts = [doc.page_content for doc in documents[i:i+chunk_size]]
             metadatas = [doc.metadata for doc in documents[i:i+chunk_size]]
             vdb.add_texts(texts, metadatas)
-            # time.sleep(6)
+            print(i)
         vdb.persist()
         print(1)
 

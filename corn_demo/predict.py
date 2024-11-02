@@ -5,7 +5,7 @@ import torch
 
 config = Config()
 device = torch.device('cpu')
-model_path = f"C:\\Users\\Roied\Desktop\\新建文件夹\\Code\\code\\project\\maize_model\\{config.name}_{config.diquname}_best_model.pth.tar"
+model_path = f"/home/zwfeng4/CropGPT-main/corn_demo/model/{config.name}_{config.diquname}_best_model.pth.tar"
 net = torch.load(model_path, map_location=torch.device('cpu'))
 if "." in config.data:
     data_x = open(f'{config.data}').read()
